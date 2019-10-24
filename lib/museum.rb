@@ -15,11 +15,7 @@ class Museum
   end
 
   def recommend_exhibits(patron)
-    recommend = []
-    @exhibits.each do |exhibit|
-      recommend << exhibit if patron.interests.any? { |interest| interest == exhibit.name }
-    end
-    recommend
+    @exhibits.find_all { |exhibit| patron.interests.include?(exhibit.name) }
   end
 
   def admit(patron)
@@ -37,20 +33,14 @@ class Museum
         end
       end
     end
-
   end
 
   def patrons_by_exhibit_interest
-
-    interests_grouped = Hash.new
-
-    @exhibits.each do |exhibit|
-      interests_grouped[exhibit] = []
-      @patrons.each do |patron|
-        interests_grouped[exhibit] = [] << patron if patron.interests.any? { |interest| interest == exhibit.name }
-      end
+    @exhibits.reduce({}) do |acc, exhibit|
+      patrons_with_interest = @patrons.find_all { |patron| patron.interests.include?(exhibit.name) }
+      acc[exhibit] = patrons_with_interest
+      acc
     end
-    interests_grouped
   end
 
   def patrons_of_exhibits
